@@ -1,0 +1,48 @@
+import pandas as pd
+import numpy as np
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+# Load the dataset
+dataset = pd.read_csv('letter-recognition.csv')
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+# Split the dataset into input features and target labels
+X = dataset.drop(['letter'], axis=1).values
+y = pd.get_dummies(dataset['letter']).values
+
+# Scale the input features to be between 0 and 1
+X = X / 255.0
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+# Define the model
+model = Sequential([
+    Dense(128, input_dim=16, activation='relu'),
+    Dense(64, activation='relu'),
+    Dense(32, activation='relu'),
+    Dense(26, activation='softmax')
+])
+
+# Compile the model
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+# Train the model
+history = model.fit(X_train, y_train, epochs=50, validation_data=(X_test, y_test))
+
+# Evaluate the model
+test_loss, test_acc = model.evaluate(X_test, y_test, verbose=2)
+print('Test accuracy:', test_acc)
+
+# Make predictions on new data
+predictions = model.predict(X_test)
+
+for i in range(10):
+    print('Predicted:', predictions[i], 'Actual:', y_test[i])
